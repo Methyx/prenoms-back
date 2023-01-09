@@ -3,6 +3,8 @@ const router = express.Router();
 
 const Prenom = require("../models/Prenom");
 
+const listOfDepartements = require("../assets/listOfDepartements");
+
 // -----------------------------------------
 // Get the list of firstname sort by number
 // -----------------------------------------
@@ -14,11 +16,17 @@ const Prenom = require("../models/Prenom");
 //
 // gender       M or F                      No
 //
-// dptCode      75                          No
+// dptCode      75                          No  (total France if missing)
+//
+//
+// start        1 (top n°1)                 No
+//
+//
+// number       5 (5 names following)       No
 //
 router.get("/top", async (req, res) => {
   try {
-    const { years, gender, dptCode } = req.query;
+    const { years, gender, dptCode, start, number } = req.query;
     const searchFilters = {
       preusuel: { $ne: "_PRENOMS_RARES" },
     };
@@ -53,10 +61,8 @@ router.get("/top", async (req, res) => {
       searchFilters.dpt = Number(dptCode);
     }
 
-    const results = await Prenom.aggregate([
-      {
-        $match: searchFilters,
-      },
+    const request = [
+      { $match: searchFilters },
       {
         $group: {
           _id: "$preusuel",
@@ -70,8 +76,27 @@ router.get("/top", async (req, res) => {
           total: -1,
         },
       },
-    ]);
+    ];
+
+    if (start && Number(start) > 0) {
+      request.push({ $skip: Number(start) - 1 });
+    }
+    if (number && Number(number) > 0) {
+      request.push({ $limit: Number(number) });
+    }
+
+    // // National treatment
+    // const nationalNumber = await Prenom.aggregate([
+    //   { $match: searchFilters },
+    //   {
+    //     $group: { _id: "total", total: { $sum: "$nombre" } },
+    //   },
+    // ]);
+    // console.log(nationalNumber);
+    const results = await Prenom.aggregate(request);
+
     res.json(results);
+    // res.json(results.slice(startIndex, endIndex));
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

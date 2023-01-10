@@ -59,6 +59,23 @@ router.get("/history", async (req, res) => {
     if (results.length && !results[0]._id) {
       const garbage = results.shift();
     }
+    if (results.length) {
+      // add every years if necessary
+      let index = 0;
+      for (let i = 1900; i < 2022; i++) {
+        if (index >= results.length) {
+          results.push({ _id: i, total: 0 });
+          index++;
+        } else {
+          if (results[index]._id === i) {
+            index++;
+          } else {
+            results.splice(index, 0, { _id: i, total: 0 });
+            index++;
+          }
+        }
+      }
+    }
     res.json(results);
     //
   } catch (error) {

@@ -11,6 +11,7 @@ app.use(express.json());
 mongoose.connect(process.env.MONGODB_URI);
 
 app.use(require("./routes/top"));
+app.use(require("./routes/history"));
 
 app.all("*", (req, res) => {
   res.status(404).json({ message: "route not found" });

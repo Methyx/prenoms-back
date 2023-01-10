@@ -85,18 +85,9 @@ router.get("/top", async (req, res) => {
       request.push({ $limit: Number(number) });
     }
 
-    // // National treatment
-    // const nationalNumber = await Prenom.aggregate([
-    //   { $match: searchFilters },
-    //   {
-    //     $group: { _id: "total", total: { $sum: "$nombre" } },
-    //   },
-    // ]);
-    // console.log(nationalNumber);
     const results = await Prenom.aggregate(request);
-
     res.json(results);
-    // res.json(results.slice(startIndex, endIndex));
+    //
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

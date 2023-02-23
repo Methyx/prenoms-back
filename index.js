@@ -14,6 +14,7 @@ app.use(require("./routes/top"));
 app.use(require("./routes/history"));
 app.use(require("./routes/name"));
 app.use(require("./routes/cumkwatt"));
+app.use(require("./routes/google"));
 
 app.all("*", (req, res) => {
   res.status(404).json({ message: "route not found" });
